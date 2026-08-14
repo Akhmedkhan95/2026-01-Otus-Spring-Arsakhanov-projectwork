@@ -3,6 +3,8 @@ package com.example.lms.service;
 import com.example.lms.dto.LoginRequest;
 import com.example.lms.dto.RegisterRequest;
 import com.example.lms.entity.User;
+import com.example.lms.exception.AlreadyExistsException;
+import com.example.lms.exception.ResourceNotFoundException;
 import com.example.lms.repository.UserRepository;
 import com.example.lms.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
