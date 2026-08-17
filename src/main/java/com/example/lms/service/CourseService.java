@@ -25,7 +25,6 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
 
-    @Cacheable(value = "courses")
     @Transactional(readOnly = true)
     public List<CourseResponse> getAllCourses() {
         return courseRepository.findAll().stream()
@@ -33,7 +32,6 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(value = "course", key = "#id")
     @Transactional(readOnly = true)
     public CourseResponse getCourseById(Long id) {
         Course course = courseRepository.findByIdWithLessons(id)

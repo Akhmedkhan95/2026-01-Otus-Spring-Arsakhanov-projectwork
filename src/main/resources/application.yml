@@ -22,8 +22,8 @@ spring:
     baseline-on-migrate: true
 
 jwt:
-  secret: ${JWT_SECRET:your-256-bit-secret-key-for-jwt-token-generation-change-in-production-please}
-  expiration: ${JWT_EXPIRATION:86400000}
+  secret: ${JWT_SECRET}        # ← УБРАЛИ дефолт, теперь переменная обязательна
+  expiration: ${JWT_EXPIRATION:86400000}  # ← expiration можно оставить с дефолтом
 
 server:
   port: 8080
