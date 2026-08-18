@@ -8,8 +8,6 @@ services:
       POSTGRES_DB: lms_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    env_file:
-      - .env
     ports:
       - "5433:5432"
     volumes:
