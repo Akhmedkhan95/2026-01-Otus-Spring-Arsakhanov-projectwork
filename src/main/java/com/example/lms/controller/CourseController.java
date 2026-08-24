@@ -1,9 +1,9 @@
 package com.example.lms.controller;
 
 import com.example.lms.dto.CourseRequest;
+import com.example.lms.dto.CourseResponse;
 import com.example.lms.dto.LessonRequest;
-import com.example.lms.entity.Course;
-import com.example.lms.entity.Lesson;
+import com.example.lms.dto.LessonResponse;
 import com.example.lms.service.CourseService;
 import com.example.lms.service.LessonService;
 import jakarta.validation.Valid;
@@ -23,30 +23,32 @@ public class CourseController {
     private final LessonService lessonService;
 
     @GetMapping
-    public ResponseEntity<List<Course>> getAllCourses() {
+    public ResponseEntity<List<CourseResponse>> getAllCourses() {
         return ResponseEntity.ok(courseService.getAllCourses());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Course> getCourseById(@PathVariable Long id) {
+    public ResponseEntity<CourseResponse> getCourseById(@PathVariable Long id) {
         return ResponseEntity.ok(courseService.getCourseById(id));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<Course> createCourse(@Valid @RequestBody CourseRequest request) {
+    public ResponseEntity<CourseResponse> createCourse(@Valid @RequestBody CourseRequest request) {
         return ResponseEntity.ok(courseService.createCourse(request));
     }
 
     @GetMapping("/{courseId}/lessons")
-    public ResponseEntity<List<Lesson>> getLessons(@PathVariable Long courseId) {
+    public ResponseEntity<List<LessonResponse>> getLessons(@PathVariable Long courseId) {
         return ResponseEntity.ok(lessonService.getLessonsByCourseId(courseId));
     }
 
     @PostMapping("/{courseId}/lessons")
     @PreAuthorize("hasRole('TEACHER')")
-    public ResponseEntity<Lesson> createLesson(@PathVariable Long courseId,
-                                               @Valid @RequestBody LessonRequest request) {
+    public ResponseEntity<LessonResponse> createLesson(@PathVariable Long courseId,
+                                                       @Valid @RequestBody LessonRequest request) {
+        // ПРОВЕРКА: только владелец курса может добавлять уроки
+        courseService.checkCourseOwnership(courseId);
         return ResponseEntity.ok(lessonService.createLesson(courseId, request));
     }
 }

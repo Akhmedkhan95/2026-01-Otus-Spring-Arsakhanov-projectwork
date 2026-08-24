@@ -3,8 +3,9 @@ package com.example.lms.service;
 import com.example.lms.dto.LoginRequest;
 import com.example.lms.dto.RegisterRequest;
 import com.example.lms.entity.User;
+import com.example.lms.exception.AlreadyExistsException;
+import com.example.lms.exception.ResourceNotFoundException;
 import com.example.lms.repository.UserRepository;
-import com.example.lms.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -21,11 +23,19 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider tokenProvider;
+    private final JwtService jwtService;  // ← ИЗМЕНИЛИ: было JwtTokenProvider
+
+    // Разрешённые роли для публичной регистрации
+    private static final Set<String> ALLOWED_ROLES = Set.of("STUDENT", "TEACHER");
 
     public Map<String, String> register(RegisterRequest request) {
+        // ПРОВЕРКА: запрет регистрации с привилегированными ролями
+        if (!ALLOWED_ROLES.contains(request.getRole())) {
+            throw new IllegalArgumentException("Регистрация с ролью " + request.getRole() + " запрещена");
+        }
+
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email уже зарегистрирован");
+            throw new AlreadyExistsException("Email уже зарегистрирован");
         }
 
         User user = User.builder()
@@ -41,7 +51,7 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        String token = tokenProvider.generateToken(authentication);
+        String token = jwtService.generateToken(authentication);  // ← ИЗМЕНИЛИ: было tokenProvider
         return Map.of("token", token, "message", "Регистрация успешна");
     }
 
@@ -50,7 +60,7 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
-        String token = tokenProvider.generateToken(authentication);
+        String token = jwtService.generateToken(authentication);  // ← ИЗМЕНИЛИ: было tokenProvider
         return Map.of("token", token);
     }
 }

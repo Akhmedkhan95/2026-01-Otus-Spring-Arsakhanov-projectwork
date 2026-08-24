@@ -1,6 +1,6 @@
 package com.example.lms.config;
 
-import com.example.lms.security.JwtTokenProvider;
+import com.example.lms.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider tokenProvider;
+    private final JwtService jwtService;  // ← ИЗМЕНИЛИ: было JwtTokenProvider
     private final UserDetailsService userDetailsService;
 
     @Override
@@ -31,8 +31,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = getJwtFromRequest(request);
 
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                String username = tokenProvider.getUsernameFromToken(jwt);
+            if (StringUtils.hasText(jwt) && jwtService.validateToken(jwt)) {  // ← ИЗМЕНИЛИ
+                String username = jwtService.getUsernameFromToken(jwt);  // ← ИЗМЕНИЛИ
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 UsernamePasswordAuthenticationToken authentication =
